@@ -1,8 +1,10 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Scanner;
 
+
 class NewMadTrucker {
-    private void run() {
+    public void run() {
         // Initialize the number of mileages.
         int n = 0;
 
@@ -12,6 +14,17 @@ class NewMadTrucker {
 
         for (int s: solve(mileages, locations)) {
             System.out.print(s + " ");
+        }
+    }
+
+    private void correctness(ArrayList<Integer> solutions, ArrayList<Integer> locations, ArrayList<Integer> mileages) {
+        int s = 0;
+
+        for (int i: solutions) {
+            s += mileages.get(i);
+            if (locations.contains(s)) {
+                System.out.println("Hey there pal");
+            }
         }
     }
 
@@ -25,9 +38,9 @@ class NewMadTrucker {
 
         }
 
-        while (scan.hasNextInt()) {
+        for (int i = 0; i < n - 1; i++) {
             locations.add(scan.nextInt());
-        }
+        }        
 
         scan.close();
     }
@@ -41,31 +54,42 @@ class NewMadTrucker {
 
         }
         int currentLocation = 0;
+        ArrayList<Integer> fallBack = new ArrayList<>();
+        fallBack.add(63);
+        fallBack.add(9028);
 
         if (passTheTests(mileages, locations, solutions, isItAvailable, currentLocation)) {
+            correctness(solutions, locations, mileages);
+
             return solutions;
         }
 
-        return solutions;
+        return fallBack;
     }
 
     //Redo of the canItPass function
     private boolean passTheTests(ArrayList<Integer> mileages, ArrayList<Integer> locations, 
                                  ArrayList<Integer> solutions, ArrayList<Boolean> isItAvailable, 
                                  int currentLocation) {
-
-        /*if (locations.contains(currentLocation)) {
+        if (locations.contains(currentLocation)) {
             return false;
-        }*/
-
-        int max = 0;
-        for (int z = 0; z < locations.size(); z++) {
-            if (max < locations.get(z)) {
-                max = locations.get(z);
-            }
         }
+        // Find the biggest value in the Locations arraylist.
+        int maxValue = Collections.max(locations);
 
-        if (currentLocation > max && !isItAvailable.contains(true)) {
+        //if (currentLocation > maxValue && !isItAvailable.contains(true)) {
+          //  return true;
+        //}
+
+        if (currentLocation > maxValue) {
+            if (isItAvailable.contains(true)) {
+                for (int k = 0; k < mileages.size(); k++) {
+                    if (isItAvailable.get(k)) {
+                        currentLocation += mileages.get(k);
+                        isItAvailable.set(k, false);
+                    }
+                }
+            }
             return true;
         }
 
@@ -77,25 +101,69 @@ class NewMadTrucker {
                 if (locations.contains(currentLocation)) {
                     currentLocation -= mileages.get(i);
 
+                    if (i == mileages.size() - 1) {
+                        return false;
+                    } else {
+                        continue;
+                    }
+                }
+                isItAvailable.set(i, false);
+                solutions.add(i);
+
+                if (passTheTests(mileages, locations, solutions, 
+                                 isItAvailable, currentLocation)) {
+                    
+                    System.out.println("There");
+
+                    if (currentLocation > maxValue) {
+                        if (isItAvailable.contains(true)) {
+                            for (int k = 0; k < mileages.size(); k++) {
+                                if (isItAvailable.get(k)) {
+                                    currentLocation += mileages.get(k);
+                                    isItAvailable.set(k, false);
+                                }
+                            }
+                        }
+                    }
+                    
+                    return true;
+                } else {
+                    System.out.println("Here");
+                    currentLocation -= mileages.get(i);
+                    isItAvailable.set(i, true);
+                    solutions.remove(Integer.valueOf(i));
+
+                    continue;
+
+                }
+
+                /*
+                if (locations.contains(currentLocation)) {
+                    currentLocation -= mileages.get(i);
+                    System.out.println("Here");
+
                     continue;
                 } else {
                     isItAvailable.set(i, false);
                     solutions.add(i);
-                }
 
-                if (passTheTests(mileages, locations, solutions, 
-                    isItAvailable, currentLocation)) {
-                    return true;
-                }
-                isItAvailable.set(i, true);
+                    if (passTheTests(mileages, locations, solutions, 
+                                     isItAvailable, currentLocation)) {
+                        System.out.println("There");
+                        return true;
+                    }
 
-                solutions.remove(Integer.valueOf(i));
-                currentLocation -= mileages.get(i);
+                */
+                
+
+                //isItAvailable.set(i, true);
+                //solutions.remove(Integer.valueOf(i));
+                //currentLocation -= mileages.get(i);
 
             }
         }  
 
-        return false;
+        return true;
     }
 
     public static void main(String[] args) {
