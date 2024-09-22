@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 
 
@@ -47,22 +49,57 @@ class Trucker5 {
                                      HashMap<Integer, Boolean> isItAvailable) {
 
         ArrayList<Integer> solutions = new ArrayList<>();
-        getPermutation(mileages, locations, solutions, isItAvailable);
+
+        HashSet<Integer> locations2 = new HashSet<>();
+
+        for (int k: locations) {
+            locations2.add(k);
+        }
+
+        ArrayList<Integer> reversedMileages = mileages;
+        Collections.reverse(reversedMileages);
+        int s1 = 0;
+        int s2 = 0;
+        int nr1 = 0;
+        int nr2 = 0;
+
+        for (int i = 0; i < mileages.size(); i++) {
+            s1 += mileages.get(i);
+
+            if (locations.contains(s1)) {
+                nr1++;
+            }
+        }
+
+        for (int i = 0; i < reversedMileages.size(); i++) {
+            s2 += reversedMileages.get(i);
+
+            if (locations.contains(s2)) {
+                nr2++;
+            }
+        }
+
+        if (nr1 < nr2) {
+            getPermutation(mileages, locations2, solutions, isItAvailable);
+        } else if (nr2 < nr1) {
+            getPermutation(reversedMileages, locations2, solutions, isItAvailable);
+        } else {
+            getPermutation(mileages, locations2, solutions, isItAvailable);
+        }
 
         return solutions;
     }
 
-    private void getPermutation(ArrayList<Integer> mileages, ArrayList<Integer> locations, 
+    private void getPermutation(ArrayList<Integer> mileages, HashSet<Integer> locations2, 
                                 ArrayList<Integer> solutions, HashMap<Integer, Boolean> isItAvailable) {
         int s = 0;
+
         if (solutions.size() == mileages.size()) {
             for (int i = 0; i < solutions.size(); i++) {
                 s += mileages.get(solutions.get(i));
-                if (locations.contains(s)) {
+                if (locations2.contains(s)) {
                     break;
                 }
-
-                
 
                 if (i == mileages.size() - 1) {
                     System.out.println(solutions);
@@ -77,7 +114,7 @@ class Trucker5 {
                 solutions.add(i);
                 isItAvailable.put(i, false);
 
-                getPermutation(mileages, locations, solutions, isItAvailable);
+                getPermutation(mileages, locations2, solutions, isItAvailable);
 
                 solutions.remove(Integer.valueOf(i));
                 isItAvailable.put(i, true);
