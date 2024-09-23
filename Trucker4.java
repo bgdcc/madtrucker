@@ -1,5 +1,7 @@
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Scanner;
 
 
@@ -17,12 +19,19 @@ class Trucker4 {
         for (int i = 0; i < mileages.size(); i++) {
             isItAvailable.put(i, true);
         }
+        HashSet<Integer> locations2 = new HashSet<>();
+
+        for (int k: locations) {
+            locations2.add(k);
+        }
 
         ArrayList<Integer> solutions = new ArrayList<>();
 
         int currentLocation = 0;
 
-        for (int s: solve(mileages, locations, solutions, isItAvailable, currentLocation)) {
+        
+
+        for (int s: solve(mileages, locations2, solutions, isItAvailable, currentLocation)) {
             System.out.print(s + " ");
         }
     }
@@ -47,28 +56,20 @@ class Trucker4 {
     }
 
 
-    private ArrayList<Integer> solve(ArrayList<Integer> mileages, ArrayList<Integer> locations, 
+    private ArrayList<Integer> solve(ArrayList<Integer> mileages, HashSet<Integer> locations2, 
                                      ArrayList<Integer> solutions, HashMap<Integer, Boolean> isItAvailable, 
                                      int currentLocation) {
 
-        if (solutions.size() == mileages.size()) {
+        if (solutions.size() == mileages.size() && currentLocation > Collections.max(locations2)) {
             return solutions;
         }
         
         // Initializes a for loop which will go through every ArrayList element.
         for (int i = 0; i < mileages.size(); i++) {
+            int possibleLocation = currentLocation + mileages.get(i);
 
             // Checks if element at index i is available to use.
-            if (isItAvailable.get(i)) {
-
-                /* Checks if the locations ArrayList contains the possible new location.
-                 * If so, the loop continues to the next iteration.
-                 */
-
-                System.out.println("Here");
-                if (locations.contains(currentLocation + mileages.get(i))) {
-                    continue;
-                }
+            if (isItAvailable.get(i) && !locations2.contains(possibleLocation)) {
 
                 /* If "locations" does not contain it,
                  * "currentLocation", "isItAvailable" and "solutions" are all updated.
@@ -79,19 +80,21 @@ class Trucker4 {
                 solutions.add(i);
                 isItAvailable.put(i, false);
 
-                System.out.println("There");
-                solutions = solve(mileages, locations, solutions, isItAvailable, currentLocation);
-                if (solutions.size() == mileages.size()) {
-                    break;
+                // The function calls itself recursively.
+                ArrayList<Integer> result = solve(mileages, locations2, solutions, 
+                                                  isItAvailable, currentLocation);
+
+                if (result.size() == mileages.size() && currentLocation > Collections.max(locations2)) {
+                    return result;
                 }
                 
                 isItAvailable.put(i, true);
-                solutions.remove(Integer.valueOf(i));
+                solutions.remove(solutions.size() - 1);
                 currentLocation -= mileages.get(i);
             }
         }
 
-        return solutions;
+        return new ArrayList<>();
     }
 
     public static void main(String[] args) {
